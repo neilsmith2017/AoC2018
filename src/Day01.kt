@@ -5,26 +5,17 @@ import kotlin.test.assertEquals
 
 class Day1 {
 
-    val frequencyChanges = mutableListOf<String>()
-    val alreadySeenFrequencies = mutableSetOf<Int>()
+    val frequencyChanges = mutableListOf<Int>()
+    private val alreadySeenFrequencies = mutableSetOf<Int>()
 
     fun loadData(filename: String) {
         File(filename).readLines().forEach {
-            frequencyChanges.add(it)
+            frequencyChanges.add(it.toInt())
         }
-    }
-
-    fun parseFrequencyChange(frequencyChange: String): Pair<Int, Int> {
-        return Pair(frequencyChange.substring(1).toInt(), if (frequencyChange[0] == '+') 1 else -1)
     }
 
     fun processFrequencyChangesForPart1(): Int {
-        var offset = 0
-        frequencyChanges.forEach {
-            val parsedFrequencyChange = parseFrequencyChange(it)
-            offset += (parsedFrequencyChange.first * parsedFrequencyChange.second)
-        }
-        return offset
+        return frequencyChanges.sum()
     }
 
     fun processFrequencyChangesForPart2(): Int {
@@ -33,8 +24,7 @@ class Day1 {
             frequencyChanges.forEach {
                 if (alreadySeenFrequencies.contains(offset)) return offset
                 alreadySeenFrequencies.add(offset)
-                val parsedFrequencyChange = parseFrequencyChange(it)
-                offset += (parsedFrequencyChange.first * parsedFrequencyChange.second)
+                offset += it
             }
         }
     }
@@ -54,12 +44,6 @@ class Day1Part1Test {
     fun testLoad() {
         day1.loadData("Day01Input.txt")
         assertEquals(1036, day1.frequencyChanges.size)
-    }
-
-    @Test
-    fun testParse() {
-        assertEquals(Pair(2, 1), day1.parseFrequencyChange("+2"))
-        assertEquals(Pair(11, -1), day1.parseFrequencyChange("-11"))
     }
 
     @Test
