@@ -10,11 +10,15 @@ data class Claim(val id: Int, val xOffset: Int, val yOffset: Int, val xSize: Int
 class Day03 {
 
     val claims = mutableListOf<Claim>()
-    lateinit var fabric : IntArray
 
+    lateinit var fabric: IntArray
+
+
+    var xSize = 0
+    var ySize = 0
 
     fun loadData(filename: String) {
-        val dr = "#([0-9]) @ ([0-9]),([0-9]): ([0-9])x([0-9])".toRegex()
+        val dr = "#([0-9]*) @ ([0-9]*),([0-9]*): ([0-9]*)x([0-9]*)".toRegex()
         File(filename).readLines().forEach {
             claims.add(dr.matchEntire(it)
                 ?.destructured
@@ -25,29 +29,47 @@ class Day03 {
         }
     }
 
-    fun getSizeOfArray(): Pair<Int, Int> {
-        var maxX = 0
-        var maxY = 0
+    fun setArraySize() {
         claims.forEach {
-            if (it.xOffset + it.xSize > maxX) maxX = it.xOffset + it.xSize
-            if (it.yOffset + it.ySize > maxY) maxY = it.yOffset + it.ySize
+            if (it.xOffset + it.xSize > xSize) xSize = it.xOffset + it.xSize
+            if (it.yOffset + it.ySize > ySize) ySize = it.yOffset + it.ySize
         }
-        return Pair(maxX, maxY)
+        fabric = IntArray(xSize * ySize)
     }
 
-    fun initFabric(size : Pair<Int,Int>) {
-        fabric = IntArray(size.first * size.second)
+    fun getArrayPosition(x: Int, y: Int): Int {
+        return x * ySize + y
     }
 
-    fun setMappingFunction(size : Pair<Int,Int>) {
-        mapCoord = {(size.first, size.second)}
+    fun processFile(): Int { // #1 @ 1,3: 4x4
+        claims.forEach {
+            for (x in it.xOffset until it.xOffset + it.xSize)
+                for (y in it.yOffset until it.yOffset + it.ySize)
+                    fabric[getArrayPosition(x, y)] += 1
+        }
 
-//                fun(size.first, size.second) -> 6 }
+        return fabric.count { it > 1 }
+    }
+
+    fun getNonOverlappingClaimNumber(): Int {
+        var goodClaimId = 0
+        claims.forEach {
+            var goodClaim = true
+            for (x in it.xOffset until it.xOffset + it.xSize)
+                for (y in it.yOffset until it.yOffset + it.ySize)
+                    if (fabric[getArrayPosition(x, y)] != 1) goodClaim = false
+            if (goodClaim) {
+                goodClaimId = it.id
+                return@forEach
+            }
+        }
+
+        return goodClaimId
     }
 
 }
 
-class Day03Part1Test {
+class Day03Test {
 
     lateinit var day3: Day03
 
@@ -66,6 +88,50 @@ class Day03Part1Test {
     @Test
     fun checkMaxSize() {
         day3.loadData("Day03-input-files/small-data.txt")
-        assertEquals(Pair(7, 7), day3.getSizeOfArray())
+        day3.setArraySize()
+        assertEquals(7, day3.xSize)
+        assertEquals(7, day3.ySize)
+        assertEquals(49, day3.fabric.size)
+    }
+
+    @Test
+    fun checkGetArrayPosition() {
+        day3.xSize = 6
+        day3.ySize = 10
+        assertEquals(0, day3.getArrayPosition(0, 0))
+        assertEquals(9, day3.getArrayPosition(0, 9))
+        assertEquals(10, day3.getArrayPosition(1, 0))
+        assertEquals(60, day3.getArrayPosition(6, 0))
+        assertEquals(69, day3.getArrayPosition(6, 9))
+    }
+
+    @Test
+    fun checkProcessFile() {
+        day3.loadData("Day03-input-files/small-data.txt")
+        day3.setArraySize()
+        assertEquals(4, day3.processFile())
+    }
+
+    @Test
+    fun checkProcessBigFile() {
+        day3.loadData("Day03-input-files/day3-data.txt")
+        day3.setArraySize()
+        assertEquals(108961, day3.processFile())
+    }
+
+    @Test
+    fun checkNonOverlappingSmallFile() {
+        day3.loadData("Day03-input-files/small-data.txt")
+        day3.setArraySize()
+        day3.processFile()
+        assertEquals(3, day3.getNonOverlappingClaimNumber())
+    }
+
+    @Test
+    fun checkNonOverlappingBigFile() {
+        day3.loadData("Day03-input-files/day3-data.txt")
+        day3.setArraySize()
+        day3.processFile()
+        assertEquals(681, day3.getNonOverlappingClaimNumber())
     }
 }
