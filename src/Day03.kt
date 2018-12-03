@@ -67,6 +67,19 @@ class Day03 {
         return goodClaimId
     }
 
+    fun getNonOverlappingClaimNumber2(): Int {
+        for (c in claims) {
+            var goodClaim = true
+            for (x in c.xOffset until c.xOffset + c.xSize)
+                for (y in c.yOffset until c.yOffset + c.ySize)
+                    if (fabric[getArrayPosition(x, y)] != 1) goodClaim = false
+            if (goodClaim) {
+                return c.id
+            }
+        }
+        return 0
+    }
+
 }
 
 class Day03Test {
@@ -133,5 +146,13 @@ class Day03Test {
         day3.setArraySize()
         day3.processFile()
         assertEquals(681, day3.getNonOverlappingClaimNumber())
+    }
+
+    @Test
+    fun checkNonOverlappingBigFile2() {
+        day3.loadData("Day03-input-files/day3-data.txt")
+        day3.setArraySize()
+        day3.processFile()
+        assertEquals(681, day3.getNonOverlappingClaimNumber2())
     }
 }
