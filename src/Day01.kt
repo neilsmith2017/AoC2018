@@ -42,19 +42,19 @@ class Day1Part1Test {
 
     @Test
     fun testLoad() {
-        day1.loadData("Day01-input-files/Day01Input.txt")
+        day1.loadData("Data/Day01-input-files/Day01Input.txt")
         assertEquals(1036, day1.frequencyChanges.size)
     }
 
     @Test
     fun runItForRealWithSmallData() {
-        day1.loadData("Day01-input-files/Day01InputSmallData.txt")
+        day1.loadData("Data/Day01-input-files/Day01InputSmallData.txt")
         assertEquals(3, day1.processFrequencyChangesForPart1())
     }
 
     @Test
     fun runItForRealWithBigData() {
-        day1.loadData("Day01-input-files/Day01Input.txt")
+        day1.loadData("Data/Day01-input-files/Day01Input.txt")
         assertEquals(402, day1.processFrequencyChangesForPart1())
     }
 }
@@ -70,37 +70,37 @@ class Day1Part2Test {
 
     @Test
     fun runItForRealWithSmallData() {
-        day1.loadData("Day01-input-files/Day01InputSmallData.txt")
+        day1.loadData("Data/Day01-input-files/Day01InputSmallData.txt")
         assertEquals(2, day1.processFrequencyChangesForPart2())
     }
 
     @Test
     fun runItForRealWithSmallData1() {
-        day1.loadData("Day01-input-files/Day01InputSmall1.txt")
+        day1.loadData("Data/Day01-input-files/Day01InputSmall1.txt")
         assertEquals(0, day1.processFrequencyChangesForPart2())
     }
 
     @Test
     fun runItForRealWithSmallData2() {
-        day1.loadData("Day01-input-files/Day01InputSmall2.txt")
+        day1.loadData("Data/Day01-input-files/Day01InputSmall2.txt")
         assertEquals(10, day1.processFrequencyChangesForPart2())
     }
 
     @Test
     fun runItForRealWithSmallData3() {
-        day1.loadData("Day01-input-files/Day01InputSmall3.txt")
+        day1.loadData("Data/Day01-input-files/Day01InputSmall3.txt")
         assertEquals(5, day1.processFrequencyChangesForPart2())
     }
 
     @Test
     fun runItForRealWithSmallData4() {
-        day1.loadData("Day01-input-files/Day01InputSmall4.txt")
+        day1.loadData("Data/Day01-input-files/Day01InputSmall4.txt")
         assertEquals(14, day1.processFrequencyChangesForPart2())
     }
 
     @Test
     fun runItForRealWithBigData() {
-        day1.loadData("Day01-input-files/Day01Input.txt")
+        day1.loadData("Data/Day01-input-files/Day01Input.txt")
         assertEquals(481, day1.processFrequencyChangesForPart2())
     }
 }

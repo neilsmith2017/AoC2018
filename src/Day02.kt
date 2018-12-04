@@ -103,7 +103,7 @@ class TestDay2Part2 {
 
     @Test
     fun checkFileSizeIsCorrect() {
-        day2.loadData("Day02-input-files/part2-small-input.txt")
+        day2.loadData("Data/Day02-input-files/part2-small-input.txt")
         assertEquals(7, day2.boxIds.size)
     }
 
@@ -117,13 +117,13 @@ class TestDay2Part2 {
 
     @Test
     fun checkSmallStrings() {
-        day2.loadData("Day02-input-files/part2-small-input.txt")
+        day2.loadData("Data/Day02-input-files/part2-small-input.txt")
         assertEquals("fgij", day2.compareAllStrings())
     }
 
     @Test
     fun checkBigStrings() {
-        day2.loadData("Day02-input-files/input.txt")
+        day2.loadData("Data/Day02-input-files/input.txt")
         assertEquals("ymdrchgpvwfloluktajxijsqb", day2.compareAllStrings())
     }
 }

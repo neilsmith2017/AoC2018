@@ -93,14 +93,14 @@ class Day03Test {
 
     @Test
     fun checkLoadingWorks() {
-        day3.loadData("Day03-input-files/small-data.txt")
+        day3.loadData("Data/Day03-input-files/small-data.txt")
         assertEquals(3, day3.claims.size)
         day3.claims.forEach { println(it) }
     }
 
     @Test
     fun checkMaxSize() {
-        day3.loadData("Day03-input-files/small-data.txt")
+        day3.loadData("Data/Day03-input-files/small-data.txt")
         day3.setArraySize()
         assertEquals(7, day3.xSize)
         assertEquals(7, day3.ySize)
@@ -120,21 +120,21 @@ class Day03Test {
 
     @Test
     fun checkProcessFile() {
-        day3.loadData("Day03-input-files/small-data.txt")
+        day3.loadData("Data/Day03-input-files/small-data.txt")
         day3.setArraySize()
         assertEquals(4, day3.processFile())
     }
 
     @Test
     fun checkProcessBigFile() {
-        day3.loadData("Day03-input-files/day3-data.txt")
+        day3.loadData("Data/Day03-input-files/day3-data.txt")
         day3.setArraySize()
         assertEquals(108961, day3.processFile())
     }
 
     @Test
     fun checkNonOverlappingSmallFile() {
-        day3.loadData("Day03-input-files/small-data.txt")
+        day3.loadData("Data/Day03-input-files/small-data.txt")
         day3.setArraySize()
         day3.processFile()
         assertEquals(3, day3.getNonOverlappingClaimNumber())
@@ -142,7 +142,7 @@ class Day03Test {
 
     @Test
     fun checkNonOverlappingBigFile() {
-        day3.loadData("Day03-input-files/day3-data.txt")
+        day3.loadData("Data/Day03-input-files/day3-data.txt")
         day3.setArraySize()
         day3.processFile()
         assertEquals(681, day3.getNonOverlappingClaimNumber())
@@ -150,7 +150,7 @@ class Day03Test {
 
     @Test
     fun checkNonOverlappingBigFile2() {
-        day3.loadData("Day03-input-files/day3-data.txt")
+        day3.loadData("Data/Day03-input-files/day3-data.txt")
         day3.setArraySize()
         day3.processFile()
         assertEquals(681, day3.getNonOverlappingClaimNumber2())
