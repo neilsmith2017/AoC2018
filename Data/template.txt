@@ -1,0 +1,24 @@
+import org.junit.Before
+import org.junit.Test
+import kotlin.test.assertEquals
+
+class Day05 {
+
+
+    fun x() = 4
+}
+
+class Day05Test {
+
+    lateinit var day5 : Day05
+
+    @Before
+    fun setUp() {
+        day5 = Day05()
+    }
+
+    @Test
+    fun check() {
+        assertEquals(4,day5.x())
+    }
+}
