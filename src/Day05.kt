@@ -97,7 +97,7 @@ class Day05Test {
 
     @Test
     fun checkBig() {
-        assertEquals(9116, day5.processFile("Data/Day05/day5-big.txt"))
+        assertEquals(9116, day5.processFile("Data/Day05/day6-big.txt"))
     }
 
     @Test
@@ -132,6 +132,6 @@ class Day05Test {
 
     @Test
     fun checkBig2() {
-        assertEquals(6890, day5.processFile2("Data/Day05/day5-big.txt"))
+        assertEquals(6890, day5.processFile2("Data/Day05/day6-big.txt"))
     }
 }
