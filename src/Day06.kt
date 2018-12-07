@@ -75,6 +75,25 @@ class Day06 {
         }
         throw IllegalArgumentException()
     }
+
+    fun processPart2(threshold: Int): Int {
+
+        var numberOfPoints = 0
+
+        for (y in top..bottom) {
+            for (x in left..right) {
+
+                val distanceForPoint = coords.map {
+                    it.key.mDistance(x, y)
+                }.sum()
+
+                if (distanceForPoint < threshold) {
+                    numberOfPoints++
+                }
+            }
+        }
+        return numberOfPoints
+    }
 }
 
 fun Pair<Int, Int>.mDistance(x: Int, y: Int): Int {
@@ -88,6 +107,20 @@ class Day6Test {
     @Before
     fun setUp() {
         day6 = Day06()
+    }
+
+    @Test
+    fun checkProcessBig2() {
+        day6.loadData("Data/Day06/day6-big.txt")
+        day6.setBounds()
+        assertEquals(46306, day6.processPart2(10000))
+    }
+
+    @Test
+    fun checkProcess2() {
+        day6.loadData("Data/Day06/day6-small.txt")
+        day6.setBounds()
+        assertEquals(16, day6.processPart2(32))
     }
 
     @Test
