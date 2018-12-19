@@ -3,161 +3,88 @@ import org.junit.Test
 import java.io.File
 import kotlin.test.assertEquals
 
-data class Pot(var plant: Boolean = false, var prev: Pot?, var next: Pot?)
-
 class Day12 {
 
-    val rules = mutableMapOf<Int, Boolean>()
-    val potVeryLeft = Pot(false, null, null)
-    val potLeft = Pot(false, potVeryLeft, null)
-    val potRight = Pot(false, potLeft, null)
-    val potVeryRight = Pot(false, potRight, null)
-    var pot0: Pot? = null
+    val rules = mutableMapOf<String, Char>()
+
+    lateinit var pots: String
+    var leftPotValue = 0
+
 
     fun loadData(filename: String) {
-
-        potVeryLeft.next = potLeft
-        potLeft.next = potRight
-        potRight.next = potVeryRight
 
         File(filename).readLines().forEach {
 
             if (it.startsWith("initial state:")) {
-                buildInitialState(it.substring(15))
+                pots = it.substring(15)
             } else if (it.isNotEmpty()) {
                 createRule(it)
             }
         }
-        pot0 = findLeftPot()
     }
 
     private fun createRule(rule: String) {
-        val reversedRule = rule.substring(0, 5).reversed()
-        var multiplier = 1
-        var total = 0
-        reversedRule.forEach {
-            if (it == '#') total += multiplier
-            multiplier *= 2
-        }
-        rules[total] = rule.last() == '#'
-    }
-
-    private fun buildInitialState(initialState: String) {
-        var lastPot = potLeft
-
-        initialState.forEach {
-            val currentPot = Pot(it == '#', lastPot, lastPot.next)
-            lastPot.next = currentPot
-            currentPot.next?.prev = currentPot
-
-            lastPot = currentPot
-        }
-
-    }
-
-    fun findLeftPot(): Pot? {
-        return potLeft.next
-    }
-
-    fun findRightPot(): Pot? {
-        return potRight.prev
+        rules[rule.substring(0, 5)] = rule.last()
     }
 
     fun addPotsToLeftIfRequired() {
-        val leftPot = findLeftPot()
-        leftPot?.apply {
-            if (plant || next?.plant == true) {
-                insertPotAfter(prev)
-                addPotsToLeftIfRequired()
+        when (pots.substring(0, 2)) {
+            ".#" -> {
+                pots = ".$pots"
+                leftPotValue++
+            }
+            "#.", "##" -> {
+                pots = "..$pots"
+                leftPotValue += 2
             }
         }
     }
 
-    private fun insertPotAfter(pot: Pot?) {
-        pot?.apply {
-            val newPot = Pot(false, this, next)
-            next?.prev = newPot
-            next = newPot
-        }
-    }
-
     fun addPotsToRightIfRequired() {
-        val rightPot = findRightPot()
-        rightPot?.apply {
-            if (plant || prev?.plant == true) {
-                insertPotAfter(this)
-                addPotsToRightIfRequired()
+        when (pots.substring(pots.length - 2)) {
+            "#." -> {
+                pots = "$pots."
+            }
+            ".#", "##" -> {
+                pots = "$pots.."
             }
         }
     }
 
     fun printPots() {
-        var currentPot: Pot? = potVeryLeft
-        do {
-            print(getSymbol(currentPot?.plant == true))
-            currentPot = currentPot?.next
-        } while (currentPot != null)
-        println()
-    }
-
-    private fun getSymbol(plant: Boolean): String {
-        return if (plant) "#" else "."
+        println(pots)
     }
 
     fun processPots() {
         addPotsToLeftIfRequired()
         addPotsToRightIfRequired()
-        var currentPot = findLeftPot()
 
-        val newPlantStates = mutableListOf<Boolean>()
-        while (currentPot?.next != null) {
+        val potsToTest = "..$pots.."
 
-            newPlantStates.add(doesPlantSurvive(currentPot))
+        var newPlantStates = ""
 
-            currentPot = currentPot.next!!
+        for (i in 2..potsToTest.length - 3) {
+
+            newPlantStates += doesPlantSurvive(potsToTest.substring(i - 2, i + 3))
+
         }
-        currentPot = findLeftPot()
-        newPlantStates.forEach {
-            currentPot?.plant = it
-            currentPot = currentPot?.next!!
-        }
+        pots = newPlantStates
     }
 
-    private fun doesPlantSurvive(currentPot: Pot): Boolean {
-        return if ( currentPot.next != null && currentPot.next?.next != null) {
-            var currentScore = 0
-            currentScore += if (currentPot.prev?.prev?.plant == true) 16 else 0
-            currentScore += if (currentPot.prev?.plant == true) 8 else 0
-            currentScore += if (currentPot.plant) 4 else 0
-            currentScore += if (currentPot.next?.plant == true) 2 else 0
-            currentScore += if (currentPot.next?.next?.plant == true) 1 else 0
-            rules.getOrDefault(currentScore, false)
-        } else {
-            false
-        }
+    private fun doesPlantSurvive(pot: String): Char {
+        return rules.getOrDefault(pot, '.')
+
     }
 
     fun calcScore(): Int {
-        var currentPot = pot0
-        var index = 0
         var score = 0
-        do {
-            if (currentPot?.plant == true) {
-                score += index
-            }
-            index++
-            currentPot = currentPot?.next
-        } while (currentPot != null)
 
-        currentPot = pot0
-        index = 0
-        do {
-            if (currentPot?.plant == true) {
-                score += index
+
+        for (i in 0 until pots.length) {
+            if (pots[i] == '#') {
+                score += i - leftPotValue
             }
-            index--
-            currentPot = currentPot?.prev
-        } while (currentPot != null)
+        }
 
         return score
     }
@@ -175,11 +102,12 @@ class Day12test {
     @Test
     fun checkBigScore2() {
         day12.loadData("Data/Day12/day12-big.txt")
-        repeat(5000000) {
+//        repeat(5000000) {
             repeat(10000) {
                 day12.processPots()
             }
-        }
+            println("looping")
+//        }
         assertEquals(3276, day12.calcScore())
     }
 
@@ -218,6 +146,7 @@ class Day12test {
         day12.printPots()
         day12.addPotsToLeftIfRequired()
         day12.printPots()
+        assertEquals(27, day12.pots.length)
     }
 
     @Test
@@ -226,6 +155,7 @@ class Day12test {
         day12.printPots()
         day12.addPotsToRightIfRequired()
         day12.printPots()
+        assertEquals(27, day12.pots.length)
     }
 
     @Test
