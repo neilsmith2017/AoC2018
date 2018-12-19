@@ -5,14 +5,13 @@ import kotlin.test.assertEquals
 
 class Day12 {
 
-    val rules = mutableMapOf<String, Char>()
+    val rules = mutableMapOf<Int, Char>()
 
-    lateinit var pots: String
+    var pots: String = ""
     var leftPotValue = 0
 
 
     fun loadData(filename: String) {
-
         File(filename).readLines().forEach {
 
             if (it.startsWith("initial state:")) {
@@ -24,29 +23,40 @@ class Day12 {
     }
 
     private fun createRule(rule: String) {
-        rules[rule.substring(0, 5)] = rule.last()
+        rules[getStringNumberValue(rule)] = rule.last()
+    }
+
+    private fun getStringNumberValue(rule: String): Int {
+        var total = 0
+        val reversedRule = rule.substring(0, 5).reversed()
+        var multiplier = 1
+        reversedRule.forEach {
+            if (it == '#') total += multiplier
+            multiplier *= 2
+        }
+        return total
     }
 
     fun addPotsToLeftIfRequired() {
-        when (pots.substring(0, 2)) {
-            ".#" -> {
-                pots = ".$pots"
-                leftPotValue++
-            }
-            "#.", "##" -> {
+        when {
+            pots.startsWith("#") -> {
                 pots = "..$pots"
                 leftPotValue += 2
+            }
+            pots[1] == '#' -> {
+                pots = ".$pots"
+                leftPotValue++
             }
         }
     }
 
     fun addPotsToRightIfRequired() {
-        when (pots.substring(pots.length - 2)) {
-            "#." -> {
-                pots = "$pots."
-            }
-            ".#", "##" -> {
+        when {
+            pots.endsWith('#') -> {
                 pots = "$pots.."
+            }
+            pots[pots.length-2] == '#' -> {
+                pots = "$pots."
             }
         }
     }
@@ -59,20 +69,14 @@ class Day12 {
         addPotsToLeftIfRequired()
         addPotsToRightIfRequired()
 
+        val numbers = mutableListOf<Int>()
         val potsToTest = "..$pots.."
 
-        var newPlantStates = ""
-
-        for (i in 2..potsToTest.length - 3) {
-
-            newPlantStates += doesPlantSurvive(potsToTest.substring(i - 2, i + 3))
-
+        for (i in 2 ..potsToTest.length - 3) {
+             numbers.add(getStringNumberValue(potsToTest.substring(i - 2, i + 3)))
         }
-        pots = newPlantStates
-    }
 
-    private fun doesPlantSurvive(pot: String): Char {
-        return rules.getOrDefault(pot, '.')
+       pots = numbers.map { it -> rules[it] }.joinToString("")
 
     }
 
@@ -102,12 +106,12 @@ class Day12test {
     @Test
     fun checkBigScore2() {
         day12.loadData("Data/Day12/day12-big.txt")
-//        repeat(5000000) {
+        repeat(5000000) {
             repeat(10000) {
                 day12.processPots()
             }
             println("looping")
-//        }
+        }
         assertEquals(3276, day12.calcScore())
     }
 
@@ -118,6 +122,16 @@ class Day12test {
             day12.processPots()
         }
         assertEquals(3276, day12.calcScore())
+    }
+
+    @Test
+    fun processAndPrintScore() {
+        day12.loadData("Data/Day12/day12-small.txt")
+        repeat(100) {
+            day12.processPots()
+            println("${day12.pots} ${day12.calcScore()}")
+        }
+        assertEquals(325, day12.calcScore())
     }
 
     @Test
