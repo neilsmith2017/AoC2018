@@ -125,7 +125,7 @@ class Day12test {
         while (day12.totalScore == 0L) {
             day12.processPots()
         }
-        assertEquals(3276, day12.totalScore)
+        assertEquals(3750000001113, day12.totalScore)
     }
 
     @Test
