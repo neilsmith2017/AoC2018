@@ -9,6 +9,10 @@ class Day12 {
 
     var pots: String = ""
     var leftPotValue = 0
+    var iteration = 0
+    var lastPots = ""
+    var lastScore = 0
+    var totalScore: Long = 0
 
 
     fun loadData(filename: String) {
@@ -55,7 +59,7 @@ class Day12 {
             pots.endsWith('#') -> {
                 pots = "$pots.."
             }
-            pots[pots.length-2] == '#' -> {
+            pots[pots.length - 2] == '#' -> {
                 pots = "$pots."
             }
         }
@@ -72,11 +76,20 @@ class Day12 {
         val numbers = mutableListOf<Int>()
         val potsToTest = "..$pots.."
 
-        for (i in 2 ..potsToTest.length - 3) {
-             numbers.add(getStringNumberValue(potsToTest.substring(i - 2, i + 3)))
+        for (i in 2..potsToTest.length - 3) {
+            numbers.add(getStringNumberValue(potsToTest.substring(i - 2, i + 3)))
         }
 
-       pots = numbers.map { it -> rules[it] }.joinToString("")
+        pots = numbers.map { it -> rules[it] }.joinToString("")
+
+        val newScore = calcScore()
+        if (pots.equals(".$lastPots")) {
+            val scoreDiff = newScore - lastScore
+            totalScore = scoreDiff * (50000000000 - iteration) + lastScore
+        }
+        lastPots = pots
+        lastScore = newScore
+        iteration++
 
     }
 
@@ -94,6 +107,9 @@ class Day12 {
     }
 }
 
+// 3750000001038 too low
+// 3750000001113 yay
+
 class Day12test {
 
     lateinit var day12: Day12
@@ -106,13 +122,10 @@ class Day12test {
     @Test
     fun checkBigScore2() {
         day12.loadData("Data/Day12/day12-big.txt")
-        repeat(5000000) {
-            repeat(10000) {
-                day12.processPots()
-            }
-            println("looping")
+        while (day12.totalScore == 0L) {
+            day12.processPots()
         }
-        assertEquals(3276, day12.calcScore())
+        assertEquals(3276, day12.totalScore)
     }
 
     @Test
