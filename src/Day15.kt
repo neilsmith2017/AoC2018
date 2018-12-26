@@ -13,7 +13,14 @@ enum class UnitType {
     ELF, GOBLIN
 }
 
-data class Unit(val type: UnitType, var x: Int, var y: Int, var hp: Int = 200, var alive: Boolean = true) :
+data class Unit(
+    val type: UnitType,
+    var x: Int,
+    var y: Int,
+    val name: Int,
+    var hp: Int = 200,
+    var alive: Boolean = true
+) :
     Comparable<Unit> {
     override fun compareTo(other: Unit): Int {
         if (y == other.y) return x - other.x
@@ -39,6 +46,7 @@ class Day15 {
     val units = mutableListOf<Unit>()
 
     fun loadData(fileName: String) {
+        var name = 0
         File(fileName).readLines().forEach { line ->
             val row = mutableListOf<Square>()
             line.forEach {
@@ -46,11 +54,11 @@ class Day15 {
                     when (it) {
                         '.' -> Square.SPACE
                         'G' -> {
-                            units.add(Unit(UnitType.GOBLIN, row.size, cavern.size))
+                            units.add(Unit(UnitType.GOBLIN, row.size, cavern.size, name++))
                             Square.GOBLIN
                         }
                         'E' -> {
-                            units.add(Unit(UnitType.ELF, row.size, cavern.size))
+                            units.add(Unit(UnitType.ELF, row.size, cavern.size, name++))
                             Square.ELF
                         }
                         else -> Square.WALL
@@ -138,30 +146,58 @@ class Day15 {
     fun doATurn(): Boolean {
         units.filter { it.alive }
             .forEach { u ->
-                val enemies = getEnemies(u)
-                if (enemies.isEmpty()) return false
-                if (!attackNeighbour(u)) {
-                    val routes = getRoutes(Point15(u.x, u.y), getTargetPoints(getEnemies(u)))
-                    if (routes.isNotEmpty()) {
-                        moveUnit(u, routes.first())
-                        attackNeighbour(u)
+                if (u.alive) {
+                    val enemies = getEnemies(u)
+                    if (enemies.isEmpty()) return false
+                    if (!attackNeighbour(u)) {
+                        val routes = getRoutes(Point15(u.x, u.y), getTargetPoints(getEnemies(u)))
+                        if (routes.isNotEmpty()) {
+                            moveUnit(u, routes.first())
+                            attackNeighbour(u)
+                        }
                     }
                 }
             }
+        units.sort()
         return true
     }
 
     fun doBattle(): Int {
         var turns = 0
+        printCavern()
+        printSummary(turns)
         while (doATurn()) {
             turns++
+            printCavern()
+            printSummary(turns)
             units.removeAll { it -> !it.alive }
         }
+        val health = printSummary(turns)
+        return turns * health
+    }
+
+    private fun printSummary(turns: Int): Int {
         val health = units.filter { u -> u.alive }.sumBy { u -> u.hp }
         units.sorted().forEach { it -> println("$it") }
         println("Turns = $turns  Health = $health")
         println("total = ${turns * health}")
-        return turns * health
+        return health
+    }
+
+    private fun printCavern() {
+        cavern.forEach {
+            it.forEach{sq ->
+                print(
+                    when (sq) {
+                        Square.WALL -> "#"
+                        Square.SPACE -> "."
+                        Square.ELF -> "E"
+                        Square.GOBLIN -> "G"
+                    }
+                )
+            }
+            println()
+        }
     }
 }
 
@@ -188,11 +224,42 @@ class Day15Test {
         day15.loadData("Data/Day15/day15-big.txt")
         day15.doBattle()
         // 216552 too big
+        // 201856
+    }
+
+    @Test
+    fun checkNarrow() {
+        day15.loadData("Data/Day15/day15-narrow.txt")
+        assertEquals(18740, day15.doBattle())
+    }
+
+    @Test
+    fun checkDoingTurnsMove0() {
+        day15.loadData("Data/Day15/day15-move0.txt")
+        assertEquals(18740, day15.doBattle())
+    }
+
+    @Test
+    fun checkDoingTurnsMove1() {
+        day15.loadData("Data/Day15/day15-move1.txt")
+        assertEquals(18740, day15.doBattle())
+    }
+
+    @Test
+    fun checkDoingTurnsMove2() {
+        day15.loadData("Data/Day15/day15-move2.txt")
+        assertEquals(18740, day15.doBattle())
+    }
+
+    @Test
+    fun checkDoingTurnsEx5() {
+        day15.loadData("Data/Day15/day15-ex5.txt")
+        assertEquals(18740, day15.doBattle())
     }
 
     @Test
     fun checkDoingTurnsEx3() {
-        day15.loadData("Data/Day15/day15-ex2.txt")
+        day15.loadData("Data/Day15/day15-ex3.txt")
         assertEquals(27755, day15.doBattle())
     }
 
