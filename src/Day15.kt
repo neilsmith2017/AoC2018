@@ -1,4 +1,3 @@
-import com.sun.org.apache.xpath.internal.operations.Bool
 import org.junit.Before
 import org.junit.Test
 import java.io.File
@@ -18,6 +17,7 @@ data class Unit(
     var x: Int,
     var y: Int,
     val name: Int,
+    val attack: Int = 3,
     var hp: Int = 200,
     var alive: Boolean = true
 ) :
@@ -45,8 +45,10 @@ class Day15 {
     val cavern = mutableListOf<MutableList<Square>>()
     val units = mutableListOf<Unit>()
 
-    fun loadData(fileName: String) {
+    fun loadData(fileName: String, elfAttack: Int = 3) {
         var name = 0
+        cavern.clear()
+        units.clear()
         File(fileName).readLines().forEach { line ->
             val row = mutableListOf<Square>()
             line.forEach {
@@ -58,7 +60,7 @@ class Day15 {
                             Square.GOBLIN
                         }
                         'E' -> {
-                            units.add(Unit(UnitType.ELF, row.size, cavern.size, name++))
+                            units.add(Unit(UnitType.ELF, row.size, cavern.size, name++, elfAttack))
                             Square.ELF
                         }
                         else -> Square.WALL
@@ -133,7 +135,7 @@ class Day15 {
 
         if (neighbourToAttack != null) {
             val unitToAttack = units.first { u -> u.x == neighbourToAttack.x && u.y == neighbourToAttack.y }
-            unitToAttack.hp -= 3
+            unitToAttack.hp -= unit.attack
             if (unitToAttack.hp <= 0) {
                 unitToAttack.alive = false
                 cavern[unitToAttack.y][unitToAttack.x] = Square.SPACE
@@ -164,12 +166,12 @@ class Day15 {
 
     fun doBattle(): Int {
         var turns = 0
-        printCavern()
-        printSummary(turns)
+//        printCavern()
+//        printSummary(turns)
         while (doATurn()) {
             turns++
-            printCavern()
-            printSummary(turns)
+//            printCavern()
+//            printSummary(turns)
             units.removeAll { it -> !it.alive }
         }
         val health = printSummary(turns)
@@ -177,16 +179,18 @@ class Day15 {
     }
 
     private fun printSummary(turns: Int): Int {
+//        return 0
         val health = units.filter { u -> u.alive }.sumBy { u -> u.hp }
-        units.sorted().forEach { it -> println("$it") }
+//        units.sorted().forEach { it -> println("$it") }
         println("Turns = $turns  Health = $health")
         println("total = ${turns * health}")
         return health
     }
 
     private fun printCavern() {
+        return
         cavern.forEach {
-            it.forEach{sq ->
+            it.forEach { sq ->
                 print(
                     when (sq) {
                         Square.WALL -> "#"
@@ -217,6 +221,90 @@ class Day15Test {
     @Before
     fun setUp() {
         day15 = Day15()
+    }
+
+    @Test
+    fun p2Big() {
+        val file = "Data/Day15/day15-big.txt"
+        var minAttack = 8
+        var allDone = false
+        day15.loadData(file, minAttack)
+        val numberOfElves = day15.units.filter { u -> u.type == UnitType.ELF }.count()
+        while (!allDone) {
+            minAttack++
+            day15.loadData(file, minAttack)
+            day15.doBattle()
+            if (day15.units.filter { u -> u.type == UnitType.ELF && u.alive }.count() == numberOfElves) allDone = true
+        }
+        println("minAttack $minAttack")
+        // 50200 - too high
+        // 51204 - too high
+    }
+
+    @Test
+    fun p2Check5() {
+        val file = "Data/Day15/day15-ex5.txt"
+        var minAttack = 3
+        var allDone = false
+        day15.loadData(file, minAttack)
+        val numberOfElves = day15.units.filter { u -> u.type == UnitType.ELF }.count()
+        while (!allDone) {
+            minAttack++
+            println(minAttack)
+            day15.loadData(file, minAttack)
+            day15.doBattle()
+            if (day15.units.filter { u -> u.type == UnitType.ELF && u.alive }.count() == numberOfElves) allDone = true
+        }
+        println("minAttack $minAttack")
+    }
+
+    @Test
+    fun p2Check3() {
+        val file = "Data/Day15/day15-ex3.txt"
+        var minAttack = 3
+        var allDone = false
+        day15.loadData(file, minAttack)
+        val numberOfElves = day15.units.filter { u -> u.type == UnitType.ELF }.count()
+        while (!allDone) {
+            minAttack++
+            println(minAttack)
+            day15.loadData(file, minAttack)
+            day15.doBattle()
+            if (day15.units.filter { u -> u.type == UnitType.ELF }.count() == numberOfElves) allDone = true
+        }
+        println("minAttack $minAttack")
+    }
+
+    @Test
+    fun p2Check2() {
+        val file = "Data/Day15/day15-ex2.txt"
+        var minAttack = 3
+        var allDone = false
+        day15.loadData(file, minAttack)
+        val numberOfElves = day15.units.filter { u -> u.type == UnitType.ELF }.count()
+        while (!allDone) {
+            minAttack++
+            println(minAttack)
+            day15.loadData(file, minAttack)
+            day15.doBattle()
+            if (day15.units.filter { u -> u.type == UnitType.ELF }.count() == numberOfElves) allDone = true
+        }
+        println("minAttack $minAttack")
+    }
+
+    @Test
+    fun p2Check1() {
+        val file = "Data/Day15/day15-target2.txt"
+        var minAttack = 3
+        var allDone = false
+        while (!allDone) {
+            minAttack++
+            println(minAttack)
+            day15.loadData(file, minAttack)
+            day15.doBattle()
+            if (day15.units.filter { u -> u.type == UnitType.ELF }.count() == 2) allDone = true
+        }
+        println("minAttack $minAttack")
     }
 
     @Test
