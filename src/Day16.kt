@@ -3,26 +3,48 @@ import org.junit.Test
 import java.io.File
 import kotlin.test.assertEquals
 
-data class Registers(val r: List<Int>)
 data class Instruction(val opCode: Int, val p1: Int, val p2: Int, val r: Int)
 
-data class Operation(val before: Registers, val op: Instruction, val after: Registers)
+data class Operation(val before: IntArray, val op: Instruction, val after: IntArray)
 
 class Day16 {
 
+    val instructionMap = mutableMapOf<String, (IntArray, Instruction) -> IntArray>()
     val operations = mutableListOf<Operation>()
 
+    val opCodeMap = mutableMapOf<Int, String>()
+    lateinit var program: List<Instruction>
+
+    fun loadFunctions() {
+        instructionMap["addr"] = ::addr
+        instructionMap["addi"] = ::addi
+        instructionMap["mulr"] = ::mulr
+        instructionMap["muli"] = ::muli
+        instructionMap["banr"] = ::banr
+        instructionMap["bani"] = ::bani
+        instructionMap["bori"] = ::bori
+        instructionMap["borr"] = ::borr
+        instructionMap["gtir"] = ::gtir
+        instructionMap["gtri"] = ::gtri
+        instructionMap["gtrr"] = ::gtrr
+        instructionMap["setr"] = ::setr
+        instructionMap["seti"] = ::seti
+        instructionMap["eqir"] = ::eqir
+        instructionMap["eqri"] = ::eqri
+        instructionMap["eqrr"] = ::eqrr
+    }
+
     fun loadData(fileName: String) {
-        lateinit var before: Registers
-        lateinit var after: Registers
+        lateinit var before: IntArray
+        lateinit var after: IntArray
         lateinit var instruction: Instruction
         File(fileName).readLines().forEach {
             when {
                 it.startsWith("Before") -> {
-                    before = Registers(parseRegs(it))
+                    before = parseRegs(it)
                 }
                 it.startsWith("After") -> {
-                    after = Registers(parseRegs(it))
+                    after = parseRegs(it)
                     operations.add(Operation(before, instruction, after))
                 }
                 it.isNotEmpty() -> {
@@ -32,153 +54,113 @@ class Day16 {
         }
     }
 
+    fun loadProgram(fileName: String) {
+        val instructions = mutableListOf<Instruction>()
+
+        File(fileName).readLines().forEach {
+            instructions.add(parseInstruction(it))
+        }
+
+        program = instructions
+    }
+
     private fun parseInstruction(it: String): Instruction {
-        var i = it.split(" ")
+        val i = it.split(" ")
         return Instruction(i[0].toInt(), i[1].toInt(), i[2].toInt(), i[3].toInt())
     }
 
-    private fun parseRegs(it: String): List<Int> {
-        val r = mutableListOf<Int>()
-        r.add(it.substring(9, 10).toInt())
-        r.add(it.substring(12, 13).toInt())
-        r.add(it.substring(15, 16).toInt())
-        r.add(it.substring(18, 19).toInt())
-        return r
+    private fun parseRegs(it: String) = intArrayOf(
+        it.substring(9, 10).toInt(),
+        it.substring(12, 13).toInt(),
+        it.substring(15, 16).toInt(),
+        it.substring(18, 19).toInt()
+    )
+
+    fun addr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] + r[i.p2] }
+
+    fun addi(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] + i.p2 }
+
+    fun mulr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] * r[i.p2] }
+
+    fun muli(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] * i.p2 }
+
+    fun banr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] and r[i.p2] }
+
+    fun bani(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] and i.p2 }
+
+    fun borr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] or r[i.p2] }
+
+    fun bori(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] or i.p2 }
+
+    fun setr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] }
+
+    fun seti(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = i.p1 }
+
+    fun gtir(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (i.p1 > r[i.p2]) 1 else 0 }
+
+    fun gtri(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (r[i.p1] > i.p2) 1 else 0 }
+
+    fun gtrr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (r[i.p1] > r[i.p2]) 1 else 0 }
+
+    fun eqir(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (i.p1 == r[i.p2]) 1 else 0 }
+
+    fun eqri(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (r[i.p1] == i.p2) 1 else 0 }
+
+    fun eqrr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (r[i.p1] == r[i.p2]) 1 else 0 }
+
+    fun getResultCountForAllOpCodes(
+        input: IntArray,
+        instruction: Instruction,
+        output: IntArray
+    ): Boolean {
+        val results = mutableListOf<IntArray>()
+
+        instructionMap["addr"]?.let { it(input, instruction).let { res -> results.add(res) } }
+        instructionMap["addi"]?.let { it(input, instruction).let { res -> results.add(res) } }
+        instructionMap["mulr"]?.let { it(input, instruction).let { res -> results.add(res) } }
+        instructionMap["muli"]?.let { it(input, instruction).let { res -> results.add(res) } }
+        instructionMap["setr"]?.let { it(input, instruction).let { res -> results.add(res) } }
+        instructionMap["seti"]?.let { it(input, instruction).let { res -> results.add(res) } }
+        instructionMap["banr"]?.let { it(input, instruction).let { res -> results.add(res) } }
+        instructionMap["bani"]?.let { it(input, instruction).let { res -> results.add(res) } }
+        instructionMap["borr"]?.let { it(input, instruction).let { res -> results.add(res) } }
+        instructionMap["bori"]?.let { it(input, instruction).let { res -> results.add(res) } }
+        instructionMap["gtir"]?.let { it(input, instruction).let { res -> results.add(res) } }
+        instructionMap["gtri"]?.let { it(input, instruction).let { res -> results.add(res) } }
+        instructionMap["gtrr"]?.let { it(input, instruction).let { res -> results.add(res) } }
+        instructionMap["eqir"]?.let { it(input, instruction).let { res -> results.add(res) } }
+        instructionMap["eqri"]?.let { it(input, instruction).let { res -> results.add(res) } }
+        instructionMap["eqrr"]?.let { it(input, instruction).let { res -> results.add(res) } }
+
+        return results.filter { it.contentEquals(output) }.count() >= 3
     }
 
-    fun addr(r: Registers, i: Instruction): Registers {
-        val regs = mutableListOf<Int>()
-        regs.addAll(r.r)
-        regs[i.r] = r.r[i.p1] + r.r[i.p2]
-        return Registers(regs)
+    fun buildOpCodeMap() {
+        operations.forEach { op ->
+            val result = instructionMap
+                .filter { instr -> instr.value(op.before, op.op).contentEquals(op.after) }
+                .filterNot { instr -> opCodeMap.containsValue(instr.key) }
+            if (result.size == 1) {
+                opCodeMap[op.op.opCode] = result.keys.first()
+            }
+
+        }
     }
 
-    fun addi(r: Registers, i: Instruction): Registers {
-        val regs = mutableListOf<Int>()
-        regs.addAll(r.r)
-        regs[i.r] = r.r[i.p1] + i.p2
-        return Registers(regs)
-    }
+    fun runProgram(): IntArray {
+        var registers = intArrayOf(0, 0, 0, 0)
 
-    fun mulr(r: Registers, i: Instruction): Registers {
-        val regs = mutableListOf<Int>()
-        regs.addAll(r.r)
-        regs[i.r] = r.r[i.p1] * r.r[i.p2]
-        return Registers(regs)
-    }
+        program.forEach { instruction ->
+            registers =
+                    instructionMap[opCodeMap[instruction.opCode]]?.let {
+                        it(
+                            registers,
+                            instruction
+                        ).let { res -> res }
+                    } ?: intArrayOf(0, 0, 0, 0)
+        }
 
-    fun muli(r: Registers, i: Instruction): Registers {
-        val regs = mutableListOf<Int>()
-        regs.addAll(r.r)
-        regs[i.r] = r.r[i.p1] * i.p2
-        return Registers(regs)
-    }
-
-    fun banr(r: Registers, i: Instruction): Registers {
-        val regs = mutableListOf<Int>()
-        regs.addAll(r.r)
-        regs[i.r] = r.r[i.p1] and r.r[i.p2]
-        return Registers(regs)
-    }
-
-    fun bani(r: Registers, i: Instruction): Registers {
-        val regs = mutableListOf<Int>()
-        regs.addAll(r.r)
-        regs[i.r] = r.r[i.p1] and i.p2
-        return Registers(regs)
-    }
-
-    fun borr(r: Registers, i: Instruction): Registers {
-        val regs = mutableListOf<Int>()
-        regs.addAll(r.r)
-        regs[i.r] = r.r[i.p1] or r.r[i.p2]
-        return Registers(regs)
-    }
-
-    fun bori(r: Registers, i: Instruction): Registers {
-        val regs = mutableListOf<Int>()
-        regs.addAll(r.r)
-        regs[i.r] = r.r[i.p1] or i.p2
-        return Registers(regs)
-    }
-
-    fun setr(r: Registers, i: Instruction): Registers {
-        val regs = mutableListOf<Int>()
-        regs.addAll(r.r)
-        regs[i.r] = r.r[i.p1]
-        return Registers(regs)
-    }
-
-    fun seti(r: Registers, i: Instruction): Registers {
-        val regs = mutableListOf<Int>()
-        regs.addAll(r.r)
-        regs[i.r] = i.p1
-        return Registers(regs)
-    }
-
-    fun gtir(r: Registers, i: Instruction): Registers {
-        val regs = mutableListOf<Int>()
-        regs.addAll(r.r)
-        regs[i.r] = if (i.p1 > r.r[i.p2]) 1 else 0
-        return Registers(regs)
-    }
-
-    fun gtri(r: Registers, i: Instruction): Registers {
-        val regs = mutableListOf<Int>()
-        regs.addAll(r.r)
-        regs[i.r] = if (r.r[i.p1] > i.p2) 1 else 0
-        return Registers(regs)
-    }
-
-    fun gtrr(r: Registers, i: Instruction): Registers {
-        val regs = mutableListOf<Int>()
-        regs.addAll(r.r)
-        regs[i.r] = if (r.r[i.p1] > r.r[i.p2]) 1 else 0
-        return Registers(regs)
-    }
-
-    fun eqir(r: Registers, i: Instruction): Registers {
-        val regs = mutableListOf<Int>()
-        regs.addAll(r.r)
-        regs[i.r] = if (i.p1 == r.r[i.p2]) 1 else 0
-        return Registers(regs)
-    }
-
-    fun eqri(r: Registers, i: Instruction): Registers {
-        val regs = mutableListOf<Int>()
-        regs.addAll(r.r)
-        regs[i.r] = if (r.r[i.p1] == i.p2) 1 else 0
-        return Registers(regs)
-    }
-
-    fun eqrr(r: Registers, i: Instruction): Registers {
-        val regs = mutableListOf<Int>()
-        regs.addAll(r.r)
-        regs[i.r] = if (r.r[i.p1] == r.r[i.p2]) 1 else 0
-        return Registers(regs)
-    }
-
-    fun getResultCountForAllOpcodes(input: Registers, instruction: Instruction, output : Registers): Boolean {
-        val results = mutableListOf<Registers>()
-        results.add(addr(input, instruction))
-        results.add(addi(input, instruction))
-        results.add(mulr(input, instruction))
-        results.add(muli(input, instruction))
-        results.add(setr(input, instruction))
-        results.add(seti(input, instruction))
-        results.add(bani(input, instruction))
-        results.add(banr(input, instruction))
-        results.add(bori(input, instruction))
-        results.add(borr(input, instruction))
-        results.add(gtir(input, instruction))
-        results.add(gtri(input, instruction))
-        results.add(gtrr(input, instruction))
-        results.add(eqir(input, instruction))
-        results.add(eqrr(input, instruction))
-        results.add(eqri(input, instruction))
-
-        val x = results.filter { it.r == output.r }.count() >= 3
-        return x
+        return registers
     }
 
 }
@@ -186,11 +168,37 @@ class Day16 {
 
 class Day16Test {
 
-    lateinit var day16: Day16
+    private lateinit var day16: Day16
 
     @Before
     fun setUp() {
         day16 = Day16()
+        day16.loadFunctions()
+    }
+
+    @Test
+    fun runPart2() {
+        day16.loadData("Data/Day16/day16-opcodes.txt")
+        day16.loadProgram("Data/Day16/day16-instructions.txt")
+        day16.buildOpCodeMap()
+        val result = day16.runProgram()
+        println("${result[0]} ${result[1]} ${result[2]} ${result[3]}")
+        assertEquals(0, result[0])
+    }
+
+    @Test
+    fun checkLoadProgram() {
+        day16.loadProgram("Data/Day16/day16-instructions.txt")
+        assertEquals(968, day16.program.size)
+        println(day16.program[5])
+    }
+
+    @Test
+    fun checkOpCodeMap() {
+        day16.loadData("Data/Day16/day16-opcodes.txt")
+        day16.buildOpCodeMap()
+        println(day16.opCodeMap)
+        assertEquals(16, day16.opCodeMap.size)
     }
 
     @Test
@@ -198,7 +206,12 @@ class Day16Test {
         day16.loadData("Data/Day16/day16-opcodes.txt")
         var count = 0
         repeat(day16.operations.size) {
-            if (day16.getResultCountForAllOpcodes(day16.operations[it].before, day16.operations[it].op, day16.operations[it].after)) count++
+            if (day16.getResultCountForAllOpCodes(
+                    day16.operations[it].before,
+                    day16.operations[it].op,
+                    day16.operations[it].after
+                )
+            ) count++
         }
         assertEquals(521, count)
         // 582 too high
@@ -206,7 +219,14 @@ class Day16Test {
 
     @Test
     fun check1() {
-        assertEquals(true, day16.getResultCountForAllOpcodes(Registers(listOf(3, 2, 1, 1)), Instruction(9, 2, 1, 2), Registers(listOf(3, 2, 2, 1))))
+        assertEquals(
+            true,
+            day16.getResultCountForAllOpCodes(
+                intArrayOf(3, 2, 1, 1),
+                Instruction(9, 2, 1, 2),
+                intArrayOf(3, 2, 2, 1)
+            )
+        )
     }
 
     @Test
