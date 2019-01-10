@@ -7,7 +7,40 @@ data class Instruction(val opCode: Int, val p1: Int, val p2: Int, val r: Int)
 
 data class Operation(val before: IntArray, val op: Instruction, val after: IntArray)
 
+
+
 class Day16 {
+    private fun addr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] + r[i.p2] }
+
+    private fun addi(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] + i.p2 }
+
+    private fun mulr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] * r[i.p2] }
+
+    fun muli(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] * i.p2 }
+
+    fun banr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] and r[i.p2] }
+
+    fun bani(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] and i.p2 }
+
+    fun borr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] or r[i.p2] }
+
+    fun bori(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] or i.p2 }
+
+    fun setr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] }
+
+    fun seti(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = i.p1 }
+
+    fun gtir(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (i.p1 > r[i.p2]) 1 else 0 }
+
+    fun gtri(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (r[i.p1] > i.p2) 1 else 0 }
+
+    fun gtrr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (r[i.p1] > r[i.p2]) 1 else 0 }
+
+    fun eqir(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (i.p1 == r[i.p2]) 1 else 0 }
+
+    fun eqri(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (r[i.p1] == i.p2) 1 else 0 }
+
+    fun eqrr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (r[i.p1] == r[i.p2]) 1 else 0 }
 
     val instructionMap = mutableMapOf<String, (IntArray, Instruction) -> IntArray>()
     val operations = mutableListOf<Operation>()
@@ -76,37 +109,7 @@ class Day16 {
         it.substring(18, 19).toInt()
     )
 
-    fun addr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] + r[i.p2] }
 
-    fun addi(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] + i.p2 }
-
-    fun mulr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] * r[i.p2] }
-
-    fun muli(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] * i.p2 }
-
-    fun banr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] and r[i.p2] }
-
-    fun bani(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] and i.p2 }
-
-    fun borr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] or r[i.p2] }
-
-    fun bori(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] or i.p2 }
-
-    fun setr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = r[i.p1] }
-
-    fun seti(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = i.p1 }
-
-    fun gtir(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (i.p1 > r[i.p2]) 1 else 0 }
-
-    fun gtri(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (r[i.p1] > i.p2) 1 else 0 }
-
-    fun gtrr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (r[i.p1] > r[i.p2]) 1 else 0 }
-
-    fun eqir(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (i.p1 == r[i.p2]) 1 else 0 }
-
-    fun eqri(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (r[i.p1] == i.p2) 1 else 0 }
-
-    fun eqrr(r: IntArray, i: Instruction): IntArray = r.copyOf().apply { this[i.r] = if (r[i.p1] == r[i.p2]) 1 else 0 }
 
     fun getResultCountForAllOpCodes(
         input: IntArray,
@@ -156,7 +159,7 @@ class Day16 {
                         it(
                             registers,
                             instruction
-                        ).let { res -> res }
+                        )//.let { res -> res }
                     } ?: intArrayOf(0, 0, 0, 0)
         }
 

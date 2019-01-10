@@ -1,0 +1,58 @@
+addi 3 16 3
+seti 1 6 5
+seti 1 8 2
+mulr 5 2 1
+eqrr 1 4 1
+addr 1 3 3
+addi 3 1 3
+addr 5 0 0
+addi 2 1 2
+gtrr 2 4 1
+addr 3 1 3
+seti 2 3 3
+addi 5 1 5
+gtrr 5 4 1
+addr 1 3 3
+seti 1 8 3
+mulr 3 3 3
+addi 4 2 4
+mulr 4 4 4
+mulr 3 4 4
+muli 4 11 4
+addi 1 6 1
+mulr 1 3 1
+addi 1 10 1
+addr 4 1 4
+addr 3 0 3
+seti 0 0 3
+setr 3 9 1
+mulr 1 3 1
+addr 3 1 1
+mulr 3 1 1
+muli 1 14 1
+mulr 1 3 1
+addr 4 1 4
+seti 0 4 0
+seti 0 0 3
+
+
+ip=0 [0, 0, 0, 0, 0, 0] Instruction19(opcode=addi, p1=3, p2=16, r=3) [0, 0, 0, 16, 0, 0]
+ip=17 [0, 0, 0, 16, 0, 0] Instruction19(opcode=addi, p1=4, p2=2, r=4) [0, 0, 0, 17, 2, 0]
+ip=18 [0, 0, 0, 17, 2, 0] Instruction19(opcode=mulr, p1=4, p2=4, r=4) [0, 0, 0, 18, 4, 0]
+ip=19 [0, 0, 0, 18, 4, 0] Instruction19(opcode=mulr, p1=3, p2=4, r=4) [0, 0, 0, 19, 76, 0]
+ip=20 [0, 0, 0, 19, 76, 0] Instruction19(opcode=muli, p1=4, p2=11, r=4) [0, 0, 0, 20, 836, 0]
+ip=21 [0, 0, 0, 20, 836, 0] Instruction19(opcode=addi, p1=1, p2=6, r=1) [0, 6, 0, 21, 836, 0]
+ip=22 [0, 6, 0, 21, 836, 0] Instruction19(opcode=mulr, p1=1, p2=3, r=1) [0, 132, 0, 22, 836, 0]
+ip=23 [0, 132, 0, 22, 836, 0] Instruction19(opcode=addi, p1=1, p2=10, r=1) [0, 142, 0, 23, 836, 0]
+ip=24 [0, 142, 0, 23, 836, 0] Instruction19(opcode=addr, p1=4, p2=1, r=4) [0, 142, 0, 24, 978, 0]
+ip=25 [0, 142, 0, 24, 978, 0] Instruction19(opcode=addr, p1=3, p2=0, r=3) [0, 142, 0, 25, 978, 0]
+ip=26 [0, 142, 0, 25, 978, 0] Instruction19(opcode=seti, p1=0, p2=0, r=3) [0, 142, 0, 0, 978, 0]
+ip=1 [0, 142, 0, 0, 978, 0] Instruction19(opcode=seti, p1=1, p2=6, r=5) [0, 142, 0, 1, 978, 1]
+ip=2 [0, 142, 0, 1, 978, 1] Instruction19(opcode=seti, p1=1, p2=8, r=2) [0, 142, 1, 2, 978, 1]
+ip=3 [0, 142, 1, 2, 978, 1] Instruction19(opcode=mulr, p1=5, p2=2, r=1) [0, 1, 1, 3, 978, 1]
+ip=4 [0, 1, 1, 3, 978, 1] Instruction19(opcode=eqrr, p1=1, p2=4, r=1) [0, 0, 1, 4, 978, 1]
+ip=5 [0, 0, 1, 4, 978, 1] Instruction19(opcode=addr, p1=1, p2=3, r=3) [0, 0, 1, 5, 978, 1]
+ip=6 [0, 0, 1, 5, 978, 1] Instruction19(opcode=addi, p1=3, p2=1, r=3) [0, 0, 1, 7, 978, 1]
+ip=8 [0, 0, 1, 7, 978, 1] Instruction19(opcode=addi, p1=2, p2=1, r=2) [0, 0, 2, 8, 978, 1]
+ip=9 [0, 0, 2, 8, 978, 1] Instruction19(opcode=gtrr, p1=2, p2=4, r=1) [0, 0, 2, 9, 978, 1]
+ip=10 [0, 0, 2, 9, 978, 1] Instruction19(opcode=addr, p1=3, p2=1, r=3) [0, 0, 2, 10, 978, 1]
