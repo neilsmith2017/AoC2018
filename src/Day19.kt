@@ -55,11 +55,11 @@ class Day19 {
         r.copyOf().apply { this[i.r] = if (r[i.p1] == r[i.p2]) 1 else 0 }
 
     fun loadFile(fileName: String) {
-//        instructions.add(Instruction19("dummy",0,0,0))
+//        instructions.addNew(Instruction19("dummy",0,0,0))
         File(fileName).readLines().forEach {
             when {
                 it.startsWith("#") -> {
-//                    instructions.add(Instruction19Ip(it.substring(it.length - 1).toInt()))
+//                    instructions.addNew(Instruction19Ip(it.substring(it.length - 1).toInt()))
                     ipRegister = it.substring(it.length - 1).toInt()
                 }
                 else -> {
@@ -105,7 +105,7 @@ class Day19 {
 
         while (true) {
             count++
-            if (count % 1000000 == 0) println("count = $count")
+            if (count % 1000000 == 0) println("getCount = $count")
             val i = instructions[ipValue]
 
             registers[ipRegister] = ipValue

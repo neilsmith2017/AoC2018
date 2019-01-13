@@ -77,7 +77,7 @@ class Day17 {
 
     fun processData() {
         coords.add(Coord(xValue(500), 0))
-//        var count = 0
+//        var getCount = 0
 
         fun addPoint(x: Int, y: Int) {
             if (y < groundMap.size - 1) {
@@ -85,7 +85,7 @@ class Day17 {
             }
         }
         while (coords.isNotEmpty()) {
-//            if (count++ == 500) {
+//            if (getCount++ == 500) {
 //                printGrid()
 //            }
             val point = coords.pop()
